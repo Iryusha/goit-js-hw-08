@@ -1,45 +1,44 @@
 import throttle from 'lodash.throttle';
-const formItem= document.querySelector('.feedback-form');
-const textareaItem = document.querySelector('.feedback-form textarea');
-const inputItem = document.querySelector('.feedback-form input');
+
+const formEl = document.querySelector('.feedback-form');
+const textareaEl = document.querySelector('.feedback-form textarea');
+const inputEl = document.querySelector('.feedback-form input');
 
 const STORAGE_KEY = 'feedback-form-state';
 
-formItem.addEventListener('submit', formSubmit);
-textareaItem.addEventListener('input', throttle(onTextInput, 500));
+const feedbackFormData = {};
 
-const formData = {};
+formEl.addEventListener('submit', onFormSubmit);
+formEl.addEventListener('input', throttle(onTextInput, 500));
 
-inputText();
+populateInputText();
 
-function formSubmit(evt) {
+function onFormSubmit(e) {
+  e.preventDefault();
 
-      evt.preventDefault();
+  if (inputEl.value && textareaEl.value) {
+    console.log({
+      email: inputEl.value,
+      message: textareaEl.value,
+    });
 
-    if (inputItem.value && textareaItem.value) {
-        console.log({
-            email: inputItem.value,
-            message: textareaItem.value
-        })
-
-        evt.currentTarget.reset();
-        localStorage.removeItem(STORAGE_KEY);
-    }
-
+    e.currentTarget.reset();
+    localStorage.removeItem(STORAGE_KEY);
+  }
 }
 
-function onTextInput(evt) {
-  formData[evt.target.name] = evt.target.value;
+function onTextInput(e) {
+  feedbackFormData[e.target.name] = e.target.value;
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(feedbackFormData));
 }
 
-function inputText() {
+function populateInputText() {
   const saveText = localStorage.getItem(STORAGE_KEY);
 
   if (saveText) {
-    inputItem.value = JSON.parse(saveText).email || '';
-    textareaItem.value = JSON.parse(saveText).message || '';
+    inputEl.value = JSON.parse(saveText).email || '';
+    textareaEl.value = JSON.parse(saveText).message || '';
   }
 }
 
